@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VigNet</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        h1, h2, h3, p {
+            text-align: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+            overflow-x: hidden; /* 水平スクロールを隠す */
+            overflow-y: auto; /* 垂直スクロールを表示 */
+            max-height: 400px; /* グリッドの高さを400pxに制限 */
+            max-width: 1500px;
+        }
+
+        .grid-item {
+            border: 2px solid #ccc;
+            padding: 10px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .grid-item img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .selection-container {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #current-selection img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+        }
+
+        #your-selection {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            gap: 50px;
+        }
+
+        #your-selection img {
+            max-width: 500px;
+            height: auto;
+            border: 2px solid #ccc;
+        }
+
+        #your-illustration {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            gap: 50px;
+            /* margin-bottom: 150px; */
+        }
+
+        #your-illustration img {
+            max-width: 500px;
+            height: 500px;
+            border: 2px solid #ccc;
+        }
+
+        #complete-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            font-size: 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 100px;
+        }
+
+        #selected-character-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+
+        #selected-stage-image {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+        }
+
+        .selected {
+            border-color: #4CAF50 !important;
+            border-width: 5px !important;
+        }
+
+        #instruction-text {
+            color: #000000;
+            font-size: 18px;
+            margin-top: -10px;  /* Adjust the spacing as needed */
+            margin-bottom: 20px; /* Space below the instruction text */
+        }
+
+        #description-text {
+            color: #000000;
+            font-size: 18px;
+            margin-top: -10px;  /* Adjust the spacing as needed */
+            margin-bottom: 20px; /* Space below the instruction text */
+        }
+
+        #decision-text {
+            color: #000000;
+            font-size: 18px;
+            margin-top: -10px;  /* Adjust the spacing as needed */
+            margin-bottom: 20px; /* Space below the instruction text */
+        }
+
+        #vignette-label {
+            font-size: 48px;  /* 文字を大きくする */
+            font-weight: bold;
+            color: #000;
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 100px;  /* 下に余白を作る */
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>VigNette</h1>
+    <p id="instruction-text" style="margin-bottom: 50px;">Choose your favorite images.</p>
+
+    <!-- Character Section -->
+    <h2>Character</h2>
+    <p id="description-text">Click to select your preferred character.</p>
+    <div class="grid-container" id="character-grid">
+        {% for image in characters %}
+            <div class="grid-item">
+                <img src="{{ config['CHARACTER_PATH'] + image }}" 
+                     data-image-name="{{ image }}" data-image-type="ccfs">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="selection-container">
+        <h2>Current Character Selection</h2>
+        <div id="current-character-selection" style="margin-bottom: 100px;">
+            <img src="{{ config['NO_IMAGE_PATH'] }}" alt="No Character Selected" id="selected-character-image">
+        </div>
+    </div>
+    
+    <!-- Stage Section -->
+    <h2>Stage</h2>
+    <p id="description-text">Click to select your preferred character.</p>
+    <div class="grid-container" id="stage-grid">
+        {% for image in stages %}
+            <div class="grid-item">
+                <img src="{{ config['STAGE_PATH'] + image }}" 
+                     data-image-name="{{ image }}" data-image-type="csfs">
+            </div>
+        {% endfor %}
+    </div>
+    <div class="selection-container">
+        <h2>Current Stage Selection</h2>
+        <div id="current-stage-selection" style="margin-bottom: 200px;">
+            <img src="{{ config['NO_IMAGE_PATH'] }}" alt="No Stage Selected" id="selected-stage-image">
+        </div>
+    </div>
+
+    <!-- Your Selection Section -->
+    <h2>Your Selection</h2>
+    <div id="your-selection"  style="margin-bottom: 50px;">
+        <div>
+            <h3>Character</h3>
+            <img src="{{ config['NO_IMAGE_PATH'] }}" alt="No Character Selected" id="final-character-selection">
+        </div>
+        <div>
+            <h3>Stage</h3>
+            <img src="{{ config['NO_IMAGE_PATH'] }}" alt="No Stage Selected" id="final-stage-selection">
+        </div>
+    </div>
+
+    <!-- Complete Button -->
+    <p id="description-text">Have you decided? If so, press the 'Complete!' button.</p>
+    <button id="complete-button">Complete!</button>
+
+
+    <div id="your-illustration-container" style="display: none;">
+        <h2>Your Vignette Illustration</h2>
+        <div id="your-illustration">
+            <img src="{{ vignette_image }}" alt="Vignette Illustration" id="vignette-image">
+        </div>
+
+        <p id="vignette-label"></p>
+        
+    </div>
+
+    <script>
+        let selectedCharacter = null;
+        let selectedStage = null;
+
+        document.addEventListener('DOMContentLoaded', function () {
+            function selectImage(imageElement) {
+                const imageName = imageElement.getAttribute('data-image-name');
+                const imageType = imageElement.getAttribute('data-image-type');
+                const imagePath = `/static/${imageType}/${imageName}`;
+
+                // Clear any previously selected images in the grid
+                if (imageType === 'ccfs') {
+                    selectedCharacter = imagePath;
+                    document.getElementById('selected-character-image').src = imagePath;
+                    document.getElementById('final-character-selection').src = imagePath;
+
+                    // Remove 'selected' class from all character images
+                    document.querySelectorAll('#character-grid .grid-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+
+                    // Add 'selected' class to the clicked character image
+                    imageElement.parentElement.classList.add('selected');
+                } else if (imageType === 'csfs') {
+                    selectedStage = imagePath;
+                    document.getElementById('selected-stage-image').src = imagePath;
+                    document.getElementById('final-stage-selection').src = imagePath;
+
+                    // Remove 'selected' class from all stage images
+                    document.querySelectorAll('#stage-grid .grid-item').forEach(item => {
+                        item.classList.remove('selected');
+                    });
+
+                    // Add 'selected' class to the clicked stage image
+                    imageElement.parentElement.classList.add('selected');
+                }
+            }
+
+            document.querySelectorAll('.grid-item img').forEach(item => {
+                item.addEventListener('click', function () {
+                    selectImage(this);
+                });
+            });
+
+            document.getElementById('complete-button').addEventListener('click', function () {
+                let characterFilename = selectedCharacter.split('/').pop();  // 例: "frame_0.png"
+                let stageFilename = selectedStage.split('/').pop();  // 例: "frame_1.png"
+
+                let characterNumber = characterFilename.match(/frame_(\d+)/)[1];  // "frame_0.png" → "0"
+                let stageNumber = stageFilename.match(/frame_(\d+)/)[1];  // "frame_1.png" → "1"
+
+                let vignetteImagePath = `/static/outputs/st${stageNumber}_ch${characterNumber}.png`;  // "st1_ch0.png"
+
+                let display_characterNumber = characterNumber.padStart(2, '0');  // 0埋めで2桁にする
+                let display_stageNumber = stageNumber.padStart(2, '0');  // 0埋めで2桁にする
+
+                console.log("🚀 Selected vignette image:", vignetteImagePath);  // ✅ デバッグ用ログ
+
+                fetch('/complete_selection', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        character_image: selectedCharacter,
+                        stage_image: selectedStage,
+                        vignette_image: vignetteImagePath  // 決定したヴィネット画像を送信
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("🎯 Received vignette_image:", data.vignette_image);  // ✅ デバッグ用ログ
+
+                    if (data.status === 'error') {
+                        alert(data.message);
+                    } else {
+                    document.getElementById('your-illustration-container').style.display = 'block'; 
+                    document.getElementById('your-illustration').style.display = 'flex';
+                    document.getElementById('vignette-image').src = data.vignette_image;
+
+                    document.getElementById('vignette-label').textContent = `#${display_characterNumber}${display_stageNumber}`; //追加
+                    
+                    document.getElementById('your-illustration-container').scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+
+        });
+    </script>
+</body>
+</html>
